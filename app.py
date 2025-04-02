@@ -8,6 +8,10 @@ from pymongo import MongoClient  # MongoDB client
 from PIL import Image
 from torchvision import models
 
+
+import warnings
+warnings.filterwarnings("ignore")
+
 # Initialize Flask app
 app = Flask(__name__)
 
