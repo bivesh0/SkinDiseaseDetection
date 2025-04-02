@@ -12,7 +12,8 @@ from torchvision import models
 app = Flask(__name__)
 
 # Load environment variables
-MONGO_URI = os.getenv("MONGO_URI")  # Fetch MongoDB URI from Render env variables
+MONGO_URI = os.getenv("MONGO_URI")
+
 if not MONGO_URI:
     raise ValueError("MONGO_URI is not set in environment variables!")
 try:
@@ -22,14 +23,13 @@ try:
 except Exception as e:
     print(f"Error connecting to MongoDB: {e}")
     exit(1)
-
 # Ensure 'static/uploads' directory exists (TEMPORARY STORAGE ONLY)
 UPLOAD_FOLDER = "static/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 # Load trained model
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 
 model = models.resnet50(pretrained=False)
 model.fc = torch.nn.Linear(model.fc.in_features, 23)  # Adjust output layer for 23 classes
