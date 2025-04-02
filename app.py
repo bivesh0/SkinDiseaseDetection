@@ -6,6 +6,7 @@ from flask import Flask, request, render_template, url_for
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient  # Import MongoDB client
 from PIL import Image
+from torchvision import models
 
 # Initialize Flask app
 app = Flask(__name__)
