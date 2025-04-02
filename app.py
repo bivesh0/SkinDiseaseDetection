@@ -23,8 +23,8 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 # Load trained model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = torch.hub.load('pytorch/vision:v0.10.0', 'resnet50', pretrained=False)
-model.fc = torch.nn.Linear(model.fc.in_features, 23)  # Assuming 23 classes
+
+model = models.resnet50(pretrained=False)
 model.load_state_dict(torch.load("resnet50_dermnet.pth", map_location=device))
 model.to(device)
 model.eval()
