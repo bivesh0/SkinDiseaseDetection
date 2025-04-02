@@ -2,22 +2,30 @@ import os
 import torch
 import torch.nn.functional as F
 import torchvision.transforms as transforms
-from flask import Flask, request, render_template, url_for
+from flask import Flask, request, render_template
 from werkzeug.utils import secure_filename
-from pymongo import MongoClient  # Import MongoDB client
+from pymongo import MongoClient  # MongoDB client
 from PIL import Image
 from torchvision import models
 
 # Initialize Flask app
 app = Flask(__name__)
 
-# MongoDB connection
-MONGO_URI = "mongodb+srv://thakur:thakur@diseasedescandprev.hxwp7.mongodb.net/?retryWrites=true&w=majority&appName=DiseaseDescandPrev"  # Update if using a cloud DB
-client = MongoClient(MONGO_URI)
-db = client["skin_disease_db"]  # Database name
-collection = db["disease_info"]  # Collection name
+# Load environment variables
+MONGO_URI = os.getenv("MONGO_URI")  # Fetch MongoDB URI from Render env variables
+if not MONGO_URI:
+    raise ValueError("MONGO_URI is not set in environment variables!")
 
-# Ensure 'static/uploads' directory exists
+# MongoDB connection
+try:
+    client = MongoClient(MONGO_URI)
+    db = client["skin_disease_db"]  # Database name
+    collection = db["disease_info"]  # Collection name
+except Exception as e:
+    print(f"Error connecting to MongoDB: {e}")
+    exit(1)
+
+# Ensure 'static/uploads' directory exists (TEMPORARY STORAGE ONLY)
 UPLOAD_FOLDER = "static/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -26,7 +34,12 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model = models.resnet50(pretrained=False)
-model.load_state_dict(torch.load("resnet50_dermnet.pth", map_location=device))
+model_path = "resnet50_dermnet.pth"
+
+if not os.path.exists(model_path):
+    raise FileNotFoundError(f"Model file '{model_path}' not found! Ensure it's included in your Render repo.")
+
+model.load_state_dict(torch.load(model_path, map_location=device))
 model.to(device)
 model.eval()
 
@@ -57,25 +70,27 @@ def get_disease_info(disease_name):
     result = collection.find_one({"name": disease_name}, {"_id": 0})  # Exclude MongoDB ID
     return result if result else {"description": "No details available.", "prevention": "No preventive measures available."}
 
-
 # Function to make a prediction with confidence score
 def predict_image(image_path):
-    image = Image.open(image_path).convert("RGB")
-    image = transform(image).unsqueeze(0).to(device)
+    try:
+        image = Image.open(image_path).convert("RGB")
+        image = transform(image).unsqueeze(0).to(device)
 
-    with torch.no_grad():
-        output = model(image)
-        probabilities = F.softmax(output, dim=1)  # Convert logits to probabilities
-        confidence, predicted_class_idx = torch.max(probabilities, dim=1)  # Get highest confidence
+        with torch.no_grad():
+            output = model(image)
+            probabilities = F.softmax(output, dim=1)  # Convert logits to probabilities
+            confidence, predicted_class_idx = torch.max(probabilities, dim=1)  # Get highest confidence
 
-    predicted_class = class_names[predicted_class_idx.item()]
-    confidence_score = confidence.item()
-    confidence_grade = get_confidence_grade(confidence_score)
+        predicted_class = class_names[predicted_class_idx.item()]
+        confidence_score = confidence.item()
+        confidence_grade = get_confidence_grade(confidence_score)
 
-    # Fetch disease details from MongoDB
-    disease_info = get_disease_info(predicted_class)
+        # Fetch disease details from MongoDB
+        disease_info = get_disease_info(predicted_class)
 
-    return predicted_class, confidence_score, confidence_grade, disease_info
+        return predicted_class, confidence_score, confidence_grade, disease_info
+    except Exception as e:
+        return "Error", 0.0, "Low", {"description": "Prediction failed.", "prevention": str(e)}
 
 # Flask route to handle uploads and predictions
 @app.route("/", methods=["GET", "POST"])
@@ -104,6 +119,7 @@ def upload_file():
 
     return render_template("index.html", prediction=None, confidence_score=None, confidence_grade=None, disease_info=None, filename=None)
 
+# Function to filter doctors from MongoDB
 def get_filtered_doctors(location=None, specialty=None):
     query = {}
 
@@ -118,7 +134,6 @@ def get_filtered_doctors(location=None, specialty=None):
 
     return doctors_list
 
-
 # Route for doctors page
 @app.route("/doctors", methods=["GET"])
 def doctors():
@@ -127,25 +142,18 @@ def doctors():
 
     doctors_list = get_filtered_doctors(location, specialty)
     
-    
     unique_locations = [
         "Peddapuram", "Tadepalligudem", "Kakinada Road", "Unduru", "Rajahmundry",
         "Rajamahendrvaram", "Danavaipeta"
     ]
 
-    
-    unique_specialties = [
-         "Acne", "Alopecia", "Bullous Disease", "Dermatitis", "Drug Eruptions",  
-        "Eczema", "Impetigo", "Lichen Planus", "Lupus", "Malignant Lesions",
-        "Nail Fungus", "Nail Psoriasis", "Psoriasis", "Rosacea", "Scabies", 
-        "Seborrheic Keratoses Tumors", "Systemic Disease", "Tinea Ringworm",
-        "Urticaria Hives", "Vascular Tumors", "Vasculitis", "Vitiligo", "Warts"
-    ]
+    unique_specialties = class_names  # Use disease class names as specialties
 
     return render_template("doctors.html", 
                            doctors=doctors_list, 
                            unique_locations=unique_locations, 
                            unique_specialties=unique_specialties)
+
 # Run the Flask app
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False, host="0.0.0.0", port=5000)
