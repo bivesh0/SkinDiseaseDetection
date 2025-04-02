@@ -15,8 +15,6 @@ app = Flask(__name__)
 MONGO_URI = os.getenv("MONGO_URI")  # Fetch MongoDB URI from Render env variables
 if not MONGO_URI:
     raise ValueError("MONGO_URI is not set in environment variables!")
-
-# MongoDB connection
 try:
     client = MongoClient(MONGO_URI)
     db = client["skin_disease_db"]  # Database name
@@ -34,7 +32,8 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model = models.resnet50(pretrained=False)
-model_path = "resnet50_dermnet.pth"
+model.fc = torch.nn.Linear(model.fc.in_features, 23)  # Adjust output layer for 23 classes
+model_path = "./resnet50_dermnet.pth"
 
 if not os.path.exists(model_path):
     raise FileNotFoundError(f"Model file '{model_path}' not found! Ensure it's included in your Render repo.")
