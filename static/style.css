@@ -1,0 +1,261 @@
+/* General Styles */
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #dff6ff;
+    color: #333333 ;
+    margin: 0;
+    padding: 0;
+    
+    /* Center content vertically & horizontally */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;  /* Full viewport height */
+}
+    
+.container {
+    width: 100%;
+    max-width: 800px;
+    background: #f0f8ff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Main Heading */
+h1 {
+    font-size: 30px;
+    font-weight: 500;
+    color: #007bff;
+    text-align: center;
+    text-decoration: solid;
+}
+
+.upload-box {
+    display: flex;
+    justify-content: center;  
+    align-items: center;      
+    flex-direction: column;   
+    text-align: center;
+    margin: 0 auto;           
+    width: fit-content;       
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.custom-upload-btn {
+    display: inline-block;
+    background: #242526;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    text-align: center;
+}
+
+.custom-upload-btn:hover {
+    background: #595d62;
+}
+
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* Centers all form elements */
+    justify-content: center;
+    text-align: center;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    background: #007bff;
+    color: white;
+    text-align: center;
+    padding: 12px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+
+.btn:hover {
+    background: #0056b3;
+}
+
+.btn-alt {
+    background: #28a745;
+}
+
+.btn-alt:hover {
+    background: #218838;
+}
+
+/* Results */
+.result {
+    margin-top: 20px;
+    text-align: center;
+}
+
+/* Prediction Box */
+.prediction-box {
+    background: #e8f5e9; /* Light green background */
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #010101; 
+}
+
+.prediction-box h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #0f100f; /* Slightly darker green for title */
+}
+
+
+
+.uploaded-image {
+    max-width: 100%;
+    height: auto;
+    margin-top: 10px;
+}
+
+/* Filter Form */
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: space-between;
+}
+
+.filter-group {
+    flex: 1;
+    min-width: 150px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+/* Doctors List */
+.doctors-container {
+    margin-top: 20px;
+}
+
+.doctor-card {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 5px solid #007bff;
+    margin-bottom: 10px;
+    transition: transform 0.3s;
+}
+
+.doctor-card:hover {
+    transform: scale(1.02);
+}
+
+.doctor-card h3 {
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.doctor-card p {
+    margin: 5px 0;
+}
+
+.doctor-card a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.doctor-card a:hover {
+    text-decoration: underline;
+}
+
+/* No results */
+.no-results {
+    text-align: center;
+    font-style: italic;
+    color: #666;
+}
+
+/* Back to Home */
+.back-home {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Justified Description */
+.description {
+    text-align: justify;
+    font-size: 16px;
+    color: #444;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+
+/* Subheadings */
+h2 {
+    font-size: 26px;
+    font-weight: 500;
+    color: #333;
+    margin-top: 20px;
+    text-align: center;
+}
+
+h3 {
+    font-size: 22px;
+    font-weight: 500;
+    color: #2c3e50;
+    border-left: 5px solid #007bff;
+    padding-left: 10px;
+    margin-top: 20px;
+}
+
+/* Styled Preventive Measures List */
+.preventive-list {
+    list-style: none;
+    padding: 0;
+}
+
+.preventive-list li {
+    background: #e3f2fd;
+    padding: 12px;
+    margin: 5px 0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #333;
+    font-weight: 400;
+}
+
+.preventive-list .bullet {
+    font-size: 18px;
+    color: #007bff;
+    margin-right: 10px;
+}

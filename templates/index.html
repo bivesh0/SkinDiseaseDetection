@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Disease Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bulma.min.css') }}">
+
+    
+    <style>
+        .hero {
+            background: linear-gradient(135deg, #d42127, #df7355);
+            color: white;
+        }
+        .upload-box {
+            border: 2px dashed #ff3860;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .upload-box:hover {
+            background: #ffe5ec;
+        }
+        .uploaded-image {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        .result-box {
+            background: #327449;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .description-box {
+            background: #232323;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .preventive-list {
+            background: #232323;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .preventive-list li {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-left: 5px solid #48c774;
+            background: #232323;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <section class="hero is-medium">
+        <div class="hero-body has-text-centered">
+            <h1 class="title is-2">Skin Disease Detection</h1>
+            <p class="subtitle is-4">Upload an image and get an instant diagnosis</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="box">
+                <h2 class="title is-4">Upload Image</h2>
+                <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+                    <div class="file has-name is-fullwidth is-boxed is-centered">
+                        <label class="file-label">
+                            <input class="file-input" type="file" name="file" id="file-upload" required>
+                            <span class="file-cta has-text-centered">
+                                <span class="file-icon">
+                                    <i class="fas fa-upload"></i>
+                                </span>
+                                <span class="file-label" id="file-label" style="display: flex; align-items: center; justify-content: center; width: 100%;">
+                                    Choose an image...
+                                </span>
+                            </span>
+                        </label>
+                    </div>
+                    <button type="submit" class="button is-danger is-fullwidth mt-3">
+                        <i class="fas fa-search"></i> Analyze
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+    
+    <script>
+        
+        document.getElementById('file-upload').addEventListener('change', function() {
+            document.getElementById('file-label').textContent = "Image selected";
+        });
+    
+    </script>
+             
+    
+       
+             {% if prediction %}
+             <div class="container">
+                 <div class="box has-background-dark has-text-white p-5">
+                     
+                     <div class="has-text-centered mb-4">
+                         <div class="box has-background-black p-4" style="display: inline-block; max-width: 300px; border-radius: 10px;">
+                             <img src="{{ url_for('static', filename='uploads/' + filename|replace(' ', '%20')) }}" 
+                                  class="uploaded-image" 
+                                  alt="Uploaded Image" 
+                                  style="max-width: 100%; border-radius: 10px;">
+                         </div>
+                     </div>
+         
+                     <div style="display: flex; justify-content: center; width: 100%;">
+                        <div class="result-box" 
+                             style="display: inline-block; text-align: center; border-radius: 8px;">
+                            <h2 class="title is-4 has-text-white">Prediction: {{ prediction }}</h2>
+                            <p class="subtitle is-5 has-text-white">Severity: <strong>{{ confidence_grade }}</strong></p>
+                        </div>
+                    </div>
+                    
+                    
+         
+                     <div class="content mt-3 description-box box has-background-black p-4">
+                         <h3 class="title is-5 has-text-primary-light">About {{ prediction }}</h3>
+                         <p class="has-text-white">{{ disease_info.description }}</p>
+                     </div>
+         
+                     <div class="content mt-3 preventive-list">
+                         <h3 class="title is-5 has-text-success-light">Preventive Measures</h3>
+                         <div class="box has-background-black p-4">
+                             <ul style="text-align: justify; list-style: none; padding-left: 0;">
+                                 {% for measure in disease_info.preventive_measures %}
+                                     <li class="mb-2">
+                                         <span class="icon has-text-success">✔</span> <span class="has-text-white">{{ measure }}</span>
+                                     </li>
+                                 {% endfor %}
+                             </ul>
+                         </div>
+                     </div>
+         
+                     <a href="{{ url_for('doctors', specialty=prediction) }}" class="button is-link mt-3">
+                         <i class="fas fa-user-md"></i> Find Doctors
+                     </a>
+         
+                 </div>
+             </div>
+         {% endif %}
+         
+         
+</body>
+</html>

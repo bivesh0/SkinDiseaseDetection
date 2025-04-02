@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Doctors</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bulma.min.css') }}">
+    
+    <style>
+        .hero {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .doctor-card {
+            transition: transform 0.3s ease-in-out;
+        }
+        .doctor-card:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <section class="hero is-medium">
+        <div class="hero-body has-text-centered">
+            <h1 class="title is-2">Find a Specialist</h1>
+            <p class="subtitle is-4">Search for the best doctors based on location and specialty</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <!-- Filter Form -->
+            <div class="box">
+                <h2 class="title is-4">Filter Search</h2>
+                <form action="{{ url_for('doctors') }}" method="GET">
+                    <div class="columns">
+                        <div class="column">
+                            <label class="label">Location</label>
+                            <div class="select is-fullwidth">
+                                <select name="location">
+                                    <option value="">All</option>
+                                    {% for loc in unique_locations %}
+                                        <option value="{{ loc }}" {% if request.args.get('location') == loc %}selected{% endif %}>{{ loc }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="column">
+                            <label class="label">Specialty</label>
+                            <div class="select is-fullwidth">
+                                <select name="specialty">
+                                    <option value="">All</option>
+                                    {% for spec in unique_specialties %}
+                                        <option value="{{ spec }}" {% if request.args.get('specialty') == spec %}selected{% endif %}>{{ spec }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="button is-primary is-fullwidth"><i class="fas fa-search"></i> Apply Filters</button>
+                </form>
+            </div>
+
+            <!-- Display Doctors -->
+            <div class="box">
+                <h2 class="subtitle">Found {{ doctors|length }} doctor(s)</h2>
+                {% if doctors %}
+                    <div class="columns is-multiline">
+                        {% for doctor in doctors %}
+                            <div class="column is-half">
+                                <div class="box doctor-card">
+                                    <h3 class="title is-5 has-text-primary"><i class="fas fa-user-md"></i> {{ doctor.name }}</h3>
+                                    <p><strong>Qualification:</strong> {{ doctor.qualification }}</p>
+                                    <p><strong>Location:</strong> {{ doctor.location }}</p>
+                                    <p><strong>Specialty:</strong> {{ doctor.specialty }}</p>
+                                    <p><strong>Contact:</strong> {{ doctor.contact }}</p>
+                                    <p><strong>Hospital/Clinic:</strong> {{ doctor.hospital_name }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="notification is-warning">No doctors found. Try changing the filters.</p>
+                {% endif %}
+            </div>
+
+            <div class="has-text-centered">
+                <a href="{{ url_for('upload_file') }}" class="button is-link"><i class="fas fa-home"></i> Back to Home</a>
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>
