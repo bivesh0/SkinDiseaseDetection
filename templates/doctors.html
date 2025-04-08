@@ -1,161 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Find Doctors</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='bulma.min.css') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Dermatologists</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bulma.min.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #e8f4f8, #f5fcff);
+            --accent-color: #2a9d8f;
+            --background-color: #FDFCF4;
+            --text-color: #264653;
+            --hover-color: rgba(42, 157, 143, 0.1);
+        }
 
-  <style>
-    :root {
-      --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
-      --accent-color: #ffffff;
-    }
+        body {
+            background: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+        }
 
-    .hero {
-      background: var(--primary-gradient);
-      color: white;
-    }
+        .doctor-card {
+            background: var(--background-color);
+            border: 2px solid var(--accent-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
 
-    .doctor-card {
-      transition: transform 0.3s ease;
-    }
+        .doctor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 32px rgba(42, 157, 143, 0.2);
+        }
 
-    .doctor-card:hover {
-      transform: scale(1.03);
-    }
+        .filter-box {
+            background: var(--background-color);
+            border: 2px solid var(--accent-color);
+            border-radius: 12px;
+            margin: 2rem auto;
+            max-width: 800px;
+        }
 
-    .navbar {
-      padding: 0.8rem 2rem;
-      background: var(--primary-gradient);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
+        .doctor-button {
+            background: linear-gradient(135deg, #2a9d8f, #21867a);
+            color: white !important;
+            border: none;
+            transition: all 0.3s ease;
+        }
 
-    .navbar-item.button.is-light {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--accent-color);
-      border: none;
-    }
+        .doctor-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(42, 157, 143, 0.3);
+        }
+        .select select {
+        background-color: #e0f7fa; /* light cyan */
+        color: var(--text-color); /* to maintain good contrast */
+        }
+        .navbar {
+    background-color: #00bcd4 !important; /* cyan */
+  }
 
-    .navbar-item.button.is-light:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
+  body, html {
+    background-color: #fefefe; /* default page background */
+  }
 
-    .hero.is-medium {
-      margin-top: 4rem;
-    }
-
-    .active-page {
-      background: rgba(255, 255, 255, 0.2) !important;
-    }
-  </style>
+  .section, .main {
+    background-color: #fefefe;
+  }  
+    </style>
 </head>
 <body>
-  <!-- Navbar -->
-  <nav class="navbar is-fixed-top" role="navigation">
-    <div class="navbar-brand">
-      <a class="navbar-item has-text-white" href="/">
-        <i class="fas fa-leaf mr-2"></i>
-        <strong>Skin Disease Detector</strong>
-      </a>
-    </div>
-    <div class="navbar-menu">
-      <div class="navbar-end">
-        <div class="navbar-item">
-          <div class="buttons">
-            <a href="{{ url_for('upload_file') }}" class="button is-light">
-              <i class="fas fa-search mr-1"></i> Analyze
+    <nav class="navbar is-fixed-top" role="navigation" style="background: var(--primary-gradient);">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/" style="color: var(--text-color);">
+                <i class="fas fa-leaf mr-2"></i>Skin Disease Detector
             </a>
-            <a href="{{ url_for('doctors') }}" class="button is-light active-page">
-              <i class="fas fa-user-md mr-1"></i> Find Doctors
-            </a>
-          </div>
         </div>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Hero Section -->
-  <section class="hero is-medium is-bold">
-    <div class="hero-body has-text-centered">
-      <div class="container">
-        <h1 class="title is-2">Find a Specialist</h1>
-        <p class="subtitle is-4">Search for top doctors by location and specialty</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Filter Section -->
-  <section class="section">
-    <div class="container">
-      <div class="box">
-        <h2 class="title is-4">Filter Search</h2>
-        <form action="{{ url_for('doctors') }}" method="GET">
-          <div class="columns is-variable is-5">
-            <div class="column">
-              <label class="label">Location</label>
-              <div class="select is-fullwidth">
-                <select name="location">
-                  <option value="">All</option>
-                  {% for loc in unique_locations %}
-                    <option value="{{ loc }}" {% if request.args.get('location') == loc %}selected{% endif %}>{{ loc }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-            <div class="column">
-              <label class="label">Specialty</label>
-              <div class="select is-fullwidth">
-                <select name="specialty">
-                  <option value="">All</option>
-                  {% for spec in unique_specialties %}
-                    <option value="{{ spec }}" {% if request.args.get('specialty') == spec %}selected{% endif %}>{{ spec }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="buttons is-centered mt-4">
-            <button type="submit" class="button is-primary">
-              <i class="fas fa-filter mr-1"></i> Apply Filters
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Results Section -->
-      <div class="box">
-        <h2 class="subtitle is-5">Found {{ doctors|length }} doctor(s)</h2>
-        {% if doctors %}
-          <div class="columns is-multiline">
-            {% for doctor in doctors %}
-              <div class="column is-half">
-                <div class="box doctor-card">
-                  <h3 class="title is-5 has-text-primary">
-                    <i class="fas fa-user-md"></i> {{ doctor.name }}
-                  </h3>
-                  <p><strong>Qualification:</strong> {{ doctor.qualification }}</p>
-                  <p><strong>Location:</strong> {{ doctor.location }}</p>
-                  <p><strong>Specialty:</strong> {{ doctor.specialty }}</p>
-                  <p><strong>Contact:</strong> {{ doctor.contact }}</p>
-                  <p><strong>Hospital/Clinic:</strong> {{ doctor.hospital_name }}</p>
+        <div class="navbar-menu">
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a href="{{ url_for('upload_file') }}" class="button doctor-button">
+                            <i class="fas fa-search mr-2"></i>Analyze
+                        </a>
+                        <a href="{{ url_for('doctors') }}" class="button doctor-button is-active">
+                            <i class="fas fa-user-md mr-2"></i>Find Doctors
+                        </a>
+                    </div>
                 </div>
-              </div>
-            {% endfor %}
-          </div>
-        {% else %}
-          <p class="notification is-warning">No doctors found. Try adjusting your filters.</p>
-        {% endif %}
-      </div>
+            </div>
+        </div>
+    </nav>
 
-      <!-- Back Button -->
-      <div class="has-text-centered mt-5">
-        <a href="{{ url_for('upload_file') }}" class="button is-link">
-          <i class="fas fa-arrow-left mr-1"></i> Back to Analyze
-        </a>
-      </div>
-    </div>
-  </section>
+    <section class="section" style="margin-top: 4rem; ">
+        <div class="container" style="color: var(--text-color);">
+            <div class="filter-box box">
+                <h2 class="title is-4 has-text-accent" style="color: var(--text-color);">
+                    <i class="fas fa-filter mr-2"></i>Filter Doctors
+                </h2>
+                <form action="{{ url_for('doctors') }}" method="GET">
+                    <div class="columns">
+                        <div class="column">
+                            <div class="field">
+                                <label class="label" style="color: var(--text-color);">Location</label>
+                                <div class="select is-fullwidth">
+                                    <select name="location" class="has-text-accent">
+                                        <option value="All">All Locations</option>
+                                        {% for location in unique_locations %}
+                                        <option value="{{ location }}" {% if request.args.get('location') == location %}selected{% endif %}>
+                                            {{ location }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="field">
+                                <label class="label" style="color: var(--text-color);">Specialty</label>
+                                <div class="select is-fullwidth">
+                                    <select name="specialty" class="has-text-accent">
+                                        <option value="All">All Specialties</option>
+                                        {% for specialty in unique_specialties %}
+                                        <option value="{{ specialty }}" {% if request.args.get('specialty') == specialty %}selected{% endif %}>
+                                            {{ specialty }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="has-text-centered">
+                        <button type="submit" class="button doctor-button">
+                            <i class="fas fa-filter mr-2"></i> Apply Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="has-text-centered mb-6">
+                <h2 class="title is-3 has-text-accent" style="color: var(--text-color);">
+                    <i class="fas fa-stethoscope mr-2"></i>Found {{ doctors|length }} Doctors
+                </h2>
+            </div>
+
+            {% if doctors %}
+            <div class="columns is-multiline" >
+                {% for doctor in doctors %}
+                <div class="column is-4">
+                    <div class="doctor-card" style="color: var(--text-color);">
+                        <div class="media">
+                            <div class="media-content">
+                                <p class="title is-4 has-text-accent" style="color: var(--text-color);">
+                                    <i class="fas fa-user-md mr-2" style="color: var(--text-color);"></i>{{ doctor.name }}
+                                </p>
+                                <p class="subtitle is-6 has-text-grey">{{ doctor.qualification }}</p>
+                            </div>
+                        </div>
+                        <div class="content">
+                            <div class="doctor-info" >
+                                <p><i class="fas fa-map-marker-alt mr-2" style="color: var(--text-color);"></i>Location: {{ doctor.location }}</p>
+                                <p><i class="fas fa-stethoscope mr-2" style="color: var(--text-color);"></i>Specialty: {{ doctor.specialty }}</p>
+                                <p><i class="fas fa-phone mr-2" style="color: var(--text-color);"></i>Contact: {{ doctor.contact }}</p>
+                                <p><i class="fas fa-hospital mr-2" style="color: var(--text-color);"></i>Hospital: {{ doctor.hospital_name }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="notification is-light" style="background: var(--hover-color); border: 2px solid var(--accent-color);">
+                <i class="fas fa-exclamation-triangle mr-2"></i>No doctors found matching your criteria
+            </div>
+            {% endif %}
+
+            <div class="has-text-centered mt-6">
+                <a href="{{ url_for('upload_file') }}" class="button doctor-button">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Analysis
+                </a>
+            </div>
+        </div>
+    </section>
 </body>
 </html>

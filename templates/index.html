@@ -11,7 +11,7 @@
         :root {
             --primary-gradient: linear-gradient(135deg, #e8f4f8, #f5fcff);
             --accent-color: #2a9d8f;
-            --background-color: #ffffff;
+            --background-color: #FDFCF4;
             --text-color: #264653;
             --success-color: #2a9d8f;
             --hover-color: rgba(42, 157, 143, 0.1);
@@ -134,7 +134,16 @@
 
         .navbar {
         padding: 0.8rem 2rem;
+        background-color: #00bcd4 !important; /* cyan */
     }
+   
+  body, html {
+    background-color: #fefefe; /* default page background */
+  }
+
+  .section, .main {
+    background-color: #fefefe;
+  }  
 
     .navbar-item:hover {
         background: transparent !important;
@@ -159,7 +168,14 @@
     .navbar-item.button.is-light[href*="{{ request.path }}"] {
         background: rgba(78, 205, 196, 0.2);
     }
-
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .fa-spin {
+        animation: spin 1s linear infinite;
+    }
     </style>
 </head>
 <body>
@@ -194,7 +210,7 @@
         <div class="hero-body has-text-centered">
             <div class="container">
                 <h1 class="title is-2 has-text-weight-bold mb-4" style="color: var(--accent-color);">Skin Disease Detection</h1>
-                <p class="subtitle is-5" style="color: var(--text-color);">Advanced AI-powered skin analysis in seconds</p>
+                <p class="subtitle is-5" style="color: var(--text-color);">Identify the skin disease by uploading photo of your skin</p>
                 <div class="pulse">
                     <i class="fas fa-stethoscope fa-3x mt-4"></i>
                 </div>
@@ -239,11 +255,16 @@
         </p>
     </div>
 
-                    <div class="has-text-centered mt-5">
-                        <button type="submit" class="button doctor-button is-medium px-6">
-                            <i class="fas fa-search mr-2"></i>Analyze Now
-                        </button>
-                    </div>
+    <div class="has-text-centered mt-5">
+        <button type="submit" class="button doctor-button is-medium px-6" id="analyze-btn">
+            <span class="icon">
+                <i class="fas fa-spinner fa-spin" style="display: none;"></i>
+            </span>
+            <span id="btn-text">
+                <i class="fas fa-search mr-2"></i>Analyze Now
+            </span>
+        </button>
+    </div>
                 </form>
             </div>
         </div>
@@ -265,7 +286,7 @@
                         </div>
                     </div>
                 </div>
-
+                
                 <div class="has-text-centered my-6">
                     <div class="glassmorphism p-5" style="
                         border-radius: 12px;
@@ -307,9 +328,9 @@
                                 </div>
                                 <div class="media-content">
                                     <h3 class="title is-5 has-text-white mb-1">
-                                        Clinical Overview
+                                        Disease Overview
                                     </h3>
-                                    <p class="has-text-grey-light">AI-generated analysis report</p>
+                                    <p class="has-text-grey-light">Basic description of this condtion is:</p>
                                 </div>
                             </div>
                             <p class="has-text-white has-text-justified">
@@ -328,9 +349,9 @@
                                 </div>
                                 <div class="media-content">
                                     <h3 class="title is-5 has-text-white mb-1">
-                                        Recommended Protocol
+                                        Preventive Measures
                                     </h3>
-                                    <p class="has-text-grey-light">Preventive measures & care guidelines</p>
+                                    <p class="has-text-grey-light">The suggested care guidelines are:</p>
                                 </div>
                             </div>
                             <div class="content">
@@ -353,7 +374,7 @@
                     <div class="column is-half has-text-centered">
                         <a href="{{ url_for('doctors', specialty=prediction) }}" 
                             class="button doctor-button is-medium px-6">
-                            <i class="fas fa-user-md mr-2"></i>Consult Specialists
+                            <i class="fas fa-user-md mr-2"></i>Find Specialists
                         </a>
                     </div>
                 </div>
@@ -388,6 +409,17 @@
         fileInput.addEventListener('change', () => {
             document.getElementById('file-label').textContent = "Image selected";
         });
+
+        document.querySelector('form').addEventListener('submit', function(e) {
+        const btn = document.getElementById('analyze-btn');
+        const spinner = btn.querySelector('.fa-spinner');
+        const btnText = document.getElementById('btn-text');
+        
+        // Show spinner and disable button
+        spinner.style.display = 'inline-block';
+        btnText.innerHTML = 'Analyzing...';
+        btn.disabled = true;
+    });
     </script>
 </body>
 </html>
