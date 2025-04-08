@@ -3,30 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DermaScan AI - Skin Disease Detection</title>
+    <title>Skin Disease Detection</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='bulma.min.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
-            --accent-color: #4ecdc4;
-            --dark-bg: #151617;
-            --card-bg: rgba(16, 42, 77, 0.4);
-            --success-color: #43cea2;
+            --primary-gradient: linear-gradient(135deg, #e8f4f8, #f5fcff);
+            --accent-color: #2a9d8f;
+            --background-color: #ffffff;
+            --text-color: #264653;
+            --success-color: #2a9d8f;
+            --hover-color: rgba(42, 157, 143, 0.1);
         }
 
         body {
-            background: var(--dark-bg);
-            color: #e0f2f1;
+            background: var(--background-color);
+            color: var(--text-color);
             min-height: 100vh;
         }
 
         .hero {
             background: var(--primary-gradient);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 30px rgba(78, 205, 196, 0.2);
+            box-shadow: 0 4px 30px rgba(42, 157, 143, 0.1);
         }
 
         .hero::before {
@@ -36,15 +35,14 @@
             height: 200%;
             top: -50%;
             left: -50%;
-            background: radial-gradient(circle, rgba(78, 205, 196, 0.1) 0%, rgba(10, 25, 47, 0) 70%);
-            transform: rotate(45deg);
+            background: radial-gradient(circle, rgba(78, 205, 196, 0.1) 0%, rgba(193, 200, 212, 0) 70%);
+            
         }
 
         .upload-container {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            border-radius: 1rem;
-            border: 1px solid rgba(78, 205, 196, 0.2);
+            background: rgba(255,255,255,0.9);
+            border: 2px solid var(--accent-color);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -55,7 +53,7 @@
 
         .upload-box {
             border: 2px dashed var(--accent-color);
-            background: rgba(78, 205, 196, 0.05);
+            background: var(--background-color);
             transition: all 0.3s ease;
             cursor: pointer;
         }
@@ -64,18 +62,26 @@
             background: rgba(78, 205, 196, 0.1);
             border-color: #63d6c4;
         }
+        .file.is-boxed .file-cta {
+        background-color: #f9f9f9 !important; /* Light background */
+        color: #363636 !important; /* Dark text */
+        border: 1px solid #dbdbdb; /* Optional border */
+    }
+
+        .file.is-boxed .file-label {
+        color: #363636 !important;
+        }
 
         .result-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            border-radius: 1rem;
-            border: 1px solid rgba(78, 205, 196, 0.1);
+            background: var(--background-color);
+            border: 1px solid rgba(42, 157, 143, 0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.05);
             transition: transform 0.3s ease;
         }
 
         .prevention-item {
-            background: linear-gradient(90deg, rgba(78, 205, 196, 0.1), transparent);
-            border-radius: 8px;
+            border-left: 3px solid var(--accent-color);
+            background: var(--hover-color);
             transition: transform 0.3s ease;
             padding: 1.25rem;
             margin-bottom: 1rem;
@@ -86,23 +92,20 @@
         }
 
         .diagnosis-badge {
-            background: rgba(78, 205, 196, 0.15);
+            background: var(--hover-color);
             color: var(--accent-color);
-            padding: 0.5rem 1.25rem;
-            border-radius: 2rem;
-            font-weight: 600;
+            border: 1px solid var(--accent-color);
         }
 
         .doctor-button {
-            background: linear-gradient(135deg, #43cea2, #185a9d);
-            border: none;
+            background: linear-gradient(135deg, #2a9d8f, #21867a);
             color: white !important;
             transition: all 0.3s ease;
         }
 
         .doctor-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(78, 205, 196, 0.3);
+            box-shadow: 0 5px 15px rgba(42, 157, 143, 0.3);
         }
 
         .pulse {
@@ -116,13 +119,16 @@
         }
 
         .box.has-background-dark {
-            background: rgba(10, 25, 47, 0.5) !important;
-            border: 1px solid rgba(78, 205, 196, 0.2);
+            background: var(--background-color) !important;
+            border: 1px solid rgba(0,0,0,0.1);
         }
 
+        .has-text-white {
+            color: var(--text-color) !important;
+        }
         .glassmorphism {
-            background: rgba(16, 42, 77, 0.4);
-            border: 1px solid rgba(74, 144, 226, 0.1);
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(42, 157, 143, 0.1);
         }
 
         .navbar {
@@ -157,47 +163,39 @@
 </head>
 <body>
 
-    <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation" style="
-    background: var(--primary-gradient);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-">
-    <div class="navbar-brand">
-        <a class="navbar-item has-text-white" href="/" style="
-            font-weight: 600;
-            font-size: 1.2rem;
-        ">
-            <i class="fas fa-dna mr-2"></i>DermaScan AI
-        </a>
-    </div>
-
-    <div class="navbar-menu">
-        <div class="navbar-end">
-            <div class="navbar-item">
-                <div class="buttons">
-                    <a href="{{ url_for('upload_file') }}" class="button is-light">
-                        <i class="fas fa-search mr-2"></i>Analyze
-                    </a>
-                    <a href="{{ url_for('doctors') }}" class="button doctor-button">
-                        <i class="fas fa-user-md mr-2"></i>Find Doctors
-                    </a>
+    <nav class="navbar is-fixed-top" role="navigation" style="
+        background: var(--primary-gradient);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    ">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/" style="color: var(--text-color);">
+                <i class="fas fa-leaf mr-2"></i>Skin Disease Detector and Severity Grading
+            </a>
+        </div>
+        <div class="navbar-menu">
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a href="{{ url_for('upload_file') }}" class="button doctor-button">
+                            <i class="fas fa-search mr-2"></i>Analyze
+                        </a>
+                        <a href="{{ url_for('doctors') }}" class="button doctor-button">
+                            <i class="fas fa-user-md mr-2"></i>Find Doctors
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     </nav>
 
 
-    <section class="hero is-medium">
+        <section class="hero is-medium">
         <div class="hero-body has-text-centered">
             <div class="container">
-                <h1 class="title is-2 has-text-weight-bold mb-3 has-text-white">
-                    <i class="fas fa-dna mr-3"></i>DermaScan AI
-                </h1>
-                <p class="subtitle is-5 has-text-light">
-                    Advanced Dermatological Analysis
-                </p>
+                <h1 class="title is-2 has-text-weight-bold mb-4" style="color: var(--accent-color);">Skin Disease Detection</h1>
+                <p class="subtitle is-5" style="color: var(--text-color);">Advanced AI-powered skin analysis in seconds</p>
                 <div class="pulse">
-                    <i class="fas fa-atom fa-3x mt-4" style="color: var(--accent-color);"></i>
+                    <i class="fas fa-stethoscope fa-3x mt-4"></i>
                 </div>
             </div>
         </div>
@@ -214,24 +212,31 @@
                 </div>
 
                 <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
-                    <div class="upload-box p-6 has-text-centered">
-                        <div class="mb-4">
-                            <i class="fas fa-file-upload fa-3x" style="color: var(--accent-color);"></i>
-                        </div>
-                        <div class="file has-name is-fullwidth is-boxed is-centered">
-                            <label class="file-label">
-                                <input class="file-input" type="file" name="file" id="file-upload" required>
-                                <span class="file-cta has-text-centered">
-                                    <span class="file-icon">
-                                        <i class="fas fa-upload" style="color: var(--accent-color);"></i>
-                                    </span>
-                                    <span class="file-label" id="file-label">
-                                        Drag & Drop or Browse Files
-                                    </span>
-                                </span>
-                            </label>
-                        </div>
-                    </div>
+        <div class="upload-box p-6 has-text-centered" >
+        <div class="mb-4">
+            <i class="fas fa-file-upload fa-3x" style="color: var(--accent-color);"></i>
+        </div>
+        <div class="file has-name is-fullwidth is-boxed is-centered">
+            <label class="file-label">
+                <input class="file-input" type="file" name="file" id="file-upload" required>
+                <span class="file-cta has-text-centered">
+                    <span class="file-icon">
+                        <i class="fas fa-upload" style="color: var(--accent-color);"></i>
+                    </span>
+                    <span class="file-label" id="file-label" style="
+                        color: var(--text-color);
+                        font-weight: 500;
+                        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+                    ">
+                        Drag & Drop or Browse Files
+                    </span>
+                </span>
+            </label>
+        </div>
+        <p class="help mt-3" style="color: var(--text-color);">
+            JPEG, PNG, or JPG (Max. 5MB)
+        </p>
+    </div>
 
                     <div class="has-text-centered mt-5">
                         <button type="submit" class="button doctor-button is-medium px-6">
@@ -249,7 +254,7 @@
             <div class="result-card p-6">
                 <div class="columns is-centered mb-6">
                     <div class="column is-two-thirds">
-                        <div class="box has-background-dark p-3">
+                        <div class="box has-background-light p-3">
                             <figure class="image is-4by3">
                                 <img src="{{ url_for('static', filename='uploads/' + filename|replace(' ', '%20')) }}" 
                                      class="uploaded-image" 
