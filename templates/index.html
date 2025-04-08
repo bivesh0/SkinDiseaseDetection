@@ -3,152 +3,385 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skin Disease Detector</title>
+    <title>DermaScan AI - Skin Disease Detection</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='bulma.min.css') }}">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        .hero {
-            background: linear-gradient(135deg, #d42127, #df7355);
-            color: white;
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
+            --accent-color: #4ecdc4;
+            --dark-bg: #151617;
+            --card-bg: rgba(16, 42, 77, 0.4);
+            --success-color: #43cea2;
         }
+
+        body {
+            background: var(--dark-bg);
+            color: #e0f2f1;
+            min-height: 100vh;
+        }
+
+        .hero {
+            background: var(--primary-gradient);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 30px rgba(78, 205, 196, 0.2);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle, rgba(78, 205, 196, 0.1) 0%, rgba(10, 25, 47, 0) 70%);
+            transform: rotate(45deg);
+        }
+
+        .upload-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 1rem;
+            border: 1px solid rgba(78, 205, 196, 0.2);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .upload-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 32px rgba(78, 205, 196, 0.15);
+        }
+
         .upload-box {
-            border: 2px dashed #ff3860;
-            padding: 20px;
-            text-align: center;
+            border: 2px dashed var(--accent-color);
+            background: rgba(78, 205, 196, 0.05);
+            transition: all 0.3s ease;
             cursor: pointer;
+        }
+
+        .upload-box:hover {
+            background: rgba(78, 205, 196, 0.1);
+            border-color: #63d6c4;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 1rem;
+            border: 1px solid rgba(78, 205, 196, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .prevention-item {
+            background: linear-gradient(90deg, rgba(78, 205, 196, 0.1), transparent);
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .prevention-item:hover {
+            transform: translateX(8px);
+        }
+
+        .diagnosis-badge {
+            background: rgba(78, 205, 196, 0.15);
+            color: var(--accent-color);
+            padding: 0.5rem 1.25rem;
+            border-radius: 2rem;
+            font-weight: 600;
+        }
+
+        .doctor-button {
+            background: linear-gradient(135deg, #43cea2, #185a9d);
+            border: none;
+            color: white !important;
             transition: all 0.3s ease;
         }
-        .upload-box:hover {
-            background: #ffe5ec;
+
+        .doctor-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(78, 205, 196, 0.3);
         }
-        .uploaded-image {
-            max-width: 100%;
-            border-radius: 10px;
-            margin-top: 10px;
+
+        .pulse {
+            animation: pulse 2s infinite;
         }
-        .result-box {
-            background: #327449;
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1); }
+            100% { transform: scale(0.95); }
         }
-        .description-box {
-            background: #232323;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+
+        .box.has-background-dark {
+            background: rgba(10, 25, 47, 0.5) !important;
+            border: 1px solid rgba(78, 205, 196, 0.2);
         }
-        .preventive-list {
-            background: #232323;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+
+        .glassmorphism {
+            background: rgba(16, 42, 77, 0.4);
+            border: 1px solid rgba(74, 144, 226, 0.1);
         }
-        .preventive-list li {
-            margin-bottom: 10px;
-            padding: 10px;
-            border-left: 5px solid #48c774;
-            background: #232323;
-            border-radius: 5px;
-        }
+
+        .navbar {
+        padding: 0.8rem 2rem;
+    }
+
+    .navbar-item:hover {
+        background: transparent !important;
+    }
+
+    .navbar-item.button.is-light {
+        background: rgba(255,255,255,0.1);
+        color: var(--accent-color);
+        border: none;
+    }
+
+    .navbar-item.button.is-light:hover {
+        background: rgba(255,255,255,0.2);
+    }
+
+    /* Add margin to hero to account for fixed navbar */
+    .hero.is-medium {
+        margin-top: 4rem;
+    }
+
+    /* Active page indicator */
+    .navbar-item.button.is-light[href*="{{ request.path }}"] {
+        background: rgba(78, 205, 196, 0.2);
+    }
+
     </style>
 </head>
 <body>
 
+    <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation" style="
+    background: var(--primary-gradient);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+">
+    <div class="navbar-brand">
+        <a class="navbar-item has-text-white" href="/" style="
+            font-weight: 600;
+            font-size: 1.2rem;
+        ">
+            <i class="fas fa-dna mr-2"></i>DermaScan AI
+        </a>
+    </div>
+
+    <div class="navbar-menu">
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <div class="buttons">
+                    <a href="{{ url_for('upload_file') }}" class="button is-light">
+                        <i class="fas fa-search mr-2"></i>Analyze
+                    </a>
+                    <a href="{{ url_for('doctors') }}" class="button doctor-button">
+                        <i class="fas fa-user-md mr-2"></i>Find Doctors
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    </nav>
+
+
     <section class="hero is-medium">
         <div class="hero-body has-text-centered">
-            <h1 class="title is-2">Skin Disease Detection</h1>
-            <p class="subtitle is-4">Upload an image and get an instant diagnosis</p>
+            <div class="container">
+                <h1 class="title is-2 has-text-weight-bold mb-3 has-text-white">
+                    <i class="fas fa-dna mr-3"></i>DermaScan AI
+                </h1>
+                <p class="subtitle is-5 has-text-light">
+                    Advanced Dermatological Analysis
+                </p>
+                <div class="pulse">
+                    <i class="fas fa-atom fa-3x mt-4" style="color: var(--accent-color);"></i>
+                </div>
+            </div>
         </div>
     </section>
 
     <section class="section">
         <div class="container">
-            <div class="box">
-                <h2 class="title is-4">Upload Image</h2>
+            <div class="upload-container p-6">
+                <div class="has-text-centered mb-5">
+                    <h2 class="title is-4 has-text-white mb-4">
+                        <i class="fas fa-microscope mr-2"></i>Upload Skin Image
+                    </h2>
+                    <p class="has-text-grey-light">Supported formats: JPG, PNG</p>
+                </div>
+
                 <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
-                    <div class="file has-name is-fullwidth is-boxed is-centered">
-                        <label class="file-label">
-                            <input class="file-input" type="file" name="file" id="file-upload" required>
-                            <span class="file-cta has-text-centered">
-                                <span class="file-icon">
-                                    <i class="fas fa-upload"></i>
+                    <div class="upload-box p-6 has-text-centered">
+                        <div class="mb-4">
+                            <i class="fas fa-file-upload fa-3x" style="color: var(--accent-color);"></i>
+                        </div>
+                        <div class="file has-name is-fullwidth is-boxed is-centered">
+                            <label class="file-label">
+                                <input class="file-input" type="file" name="file" id="file-upload" required>
+                                <span class="file-cta has-text-centered">
+                                    <span class="file-icon">
+                                        <i class="fas fa-upload" style="color: var(--accent-color);"></i>
+                                    </span>
+                                    <span class="file-label" id="file-label">
+                                        Drag & Drop or Browse Files
+                                    </span>
                                 </span>
-                                <span class="file-label" id="file-label" style="display: flex; align-items: center; justify-content: center; width: 100%;">
-                                    Choose an image...
-                                </span>
-                            </span>
-                        </label>
+                            </label>
+                        </div>
                     </div>
-                    <button type="submit" class="button is-danger is-fullwidth mt-3">
-                        <i class="fas fa-search"></i> Analyze
-                    </button>
+
+                    <div class="has-text-centered mt-5">
+                        <button type="submit" class="button doctor-button is-medium px-6">
+                            <i class="fas fa-search mr-2"></i>Analyze Now
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
     </section>
-    
-    <script>
-        
-        document.getElementById('file-upload').addEventListener('change', function() {
-            document.getElementById('file-label').textContent = "Image selected";
-        });
-    
-    </script>
-             
-    
-       
-             {% if prediction %}
-             <div class="container">
-                 <div class="box has-background-dark has-text-white p-5">
-                     
-                     <div class="has-text-centered mb-4">
-                         <div class="box has-background-black p-4" style="display: inline-block; max-width: 300px; border-radius: 10px;">
-                             <img src="{{ url_for('static', filename='uploads/' + filename|replace(' ', '%20')) }}" 
-                                  class="uploaded-image" 
-                                  alt="Uploaded Image" 
-                                  style="max-width: 100%; border-radius: 10px;">
-                         </div>
-                     </div>
-         
-                     <div style="display: flex; justify-content: center; width: 100%;">
-                        <div class="result-box" 
-                             style="display: inline-block; text-align: center; border-radius: 8px;">
-                            <h2 class="title is-4 has-text-white">Prediction: {{ prediction }}</h2>
-                            <p class="subtitle is-5 has-text-white">Severity: <strong>{{ confidence_grade }}</strong></p>
+
+    {% if prediction %}
+    <section class="section">
+        <div class="container">
+            <div class="result-card p-6">
+                <div class="columns is-centered mb-6">
+                    <div class="column is-two-thirds">
+                        <div class="box has-background-dark p-3">
+                            <figure class="image is-4by3">
+                                <img src="{{ url_for('static', filename='uploads/' + filename|replace(' ', '%20')) }}" 
+                                     class="uploaded-image" 
+                                     alt="Analysis Preview"
+                                     style="border-radius: 12px; object-fit: cover;">
+                            </figure>
                         </div>
                     </div>
-                    
-                    
-         
-                     <div class="content mt-3 description-box box has-background-black p-4">
-                         <h3 class="title is-5 has-text-primary-light">About {{ prediction }}</h3>
-                         <p class="has-text-white">{{ disease_info.description }}</p>
-                     </div>
-         
-                     <div class="content mt-3 preventive-list">
-                         <h3 class="title is-5 has-text-success-light">Preventive Measures</h3>
-                         <div class="box has-background-black p-4">
-                             <ul style="text-align: justify; list-style: none; padding-left: 0;">
-                                 {% for measure in disease_info.preventive_measures %}
-                                     <li class="mb-2">
-                                         <span class="icon has-text-success">✔</span> <span class="has-text-white">{{ measure }}</span>
-                                     </li>
-                                 {% endfor %}
-                             </ul>
-                         </div>
-                     </div>
-         
-                     <a href="{{ url_for('doctors', specialty=prediction) }}" class="button is-link mt-3">
-                         <i class="fas fa-user-md"></i> Find Doctors
-                     </a>
-         
-                 </div>
-             </div>
-         {% endif %}
-         
-         
+                </div>
+
+                <div class="has-text-centered my-6">
+                    <div class="glassmorphism p-5" style="
+                        border-radius: 12px;
+                        max-width: 500px;
+                        margin: 0 auto;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                    ">
+                        <h2 class="title is-3 has-text-white mb-2">{{ prediction }}</h2>
+                        <div class="tag is-success is-medium is-rounded" style="
+                            {% if confidence_grade == 'Low' %}
+                                background: rgba(67, 206, 162, 0.2);
+                                color: #43cea2;
+                                border: 1px solid rgba(67, 206, 162, 0.4);
+                            {% elif confidence_grade == 'Medium' %}
+                                background: rgba(255, 193, 7, 0.2);
+                                color: #ffc107;
+                                border: 1px solid rgba(255, 193, 7, 0.4);
+                            {% else %}
+                                background: rgba(255, 56, 96, 0.2);
+                                color: #ff3860;
+                                border: 1px solid rgba(255, 56, 96, 0.4);
+                            {% endif %}
+                            width: fit-content;">
+                            {{ confidence_grade }} Severity
+                        </div>
+                    </div>
+                </div>
+
+                <div class="columns is-multiline">
+                    <div class="column is-6">
+                        <div class="glassmorphism p-5" style="border-radius: 12px;">
+                            <div class="media mb-4">
+                                <div class="media-left">
+                                    <span class="icon has-text-accent">
+                                        <i class="fas fa-file-medical fa-2x"></i>
+                                    </span>
+                                </div>
+                                <div class="media-content">
+                                    <h3 class="title is-5 has-text-white mb-1">
+                                        Clinical Overview
+                                    </h3>
+                                    <p class="has-text-grey-light">AI-generated analysis report</p>
+                                </div>
+                            </div>
+                            <p class="has-text-white has-text-justified">
+                                {{ disease_info.description }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="column is-6">
+                        <div class="glassmorphism p-5" style="border-radius: 12px;">
+                            <div class="media mb-4">
+                                <div class="media-left">
+                                    <span class="icon has-text-accent">
+                                        <i class="fas fa-shield-virus fa-2x"></i>
+                                    </span>
+                                </div>
+                                <div class="media-content">
+                                    <h3 class="title is-5 has-text-white mb-1">
+                                        Recommended Protocol
+                                    </h3>
+                                    <p class="has-text-grey-light">Preventive measures & care guidelines</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <ul class="preventive-list" style="list-style: none; padding-left: 0;">
+                                    {% for measure in disease_info.preventive_measures %}
+                                    <li class="prevention-item">
+                                        <span class="icon has-text-accent">
+                                            <i class="fas fa-circle-notch fa-xs"></i>
+                                        </span>
+                                        <span class="has-text-white">{{ measure }}</span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="columns is-centered mt-6">
+                    <div class="column is-half has-text-centered">
+                        <a href="{{ url_for('doctors', specialty=prediction) }}" 
+                            class="button doctor-button is-medium px-6">
+                            <i class="fas fa-user-md mr-2"></i>Consult Specialists
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <script>
+        // Drag and drop enhancements
+        const uploadBox = document.querySelector('.upload-box');
+        const fileInput = document.getElementById('file-upload');
+
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.classList.add('dragover');
+        });
+
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.classList.remove('dragover');
+        });
+
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            fileInput.files = e.dataTransfer.files;
+            document.getElementById('file-label').textContent = "Image selected";
+        });
+
+        // File input change handler
+        fileInput.addEventListener('change', () => {
+            document.getElementById('file-label').textContent = "Image selected";
+        });
+    </script>
 </body>
 </html>

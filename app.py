@@ -7,7 +7,8 @@ from werkzeug.utils import secure_filename
 from pymongo import MongoClient  # MongoDB client
 from PIL import Image
 from torchvision import models
-
+import torch.nn as nn
+import torch.optim as optim
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -16,7 +17,7 @@ warnings.filterwarnings("ignore")
 app = Flask(__name__)
 
 # Load environment variables
-MONGO_URI = os.getenv("MONGO_URI")
+MONGO_URI = "mongodb+srv://thakur:thakur@diseasedescandprev.hxwp7.mongodb.net/?retryWrites=true&w=majority&appName=DiseaseDescandPrev"
 
 if not MONGO_URI:
     raise ValueError("MONGO_URI is not set in environment variables!")
@@ -36,7 +37,8 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 device = torch.device("cpu")
 
 model = models.resnet50(pretrained=False)
-model.fc = torch.nn.Linear(model.fc.in_features, 23)  # Adjust output layer for 23 classes
+num_classes = 23  # Number of classes in the dataset
+model.fc = nn.Linear(model.fc.in_features, num_classes)  # Adjust the final layer for 23 classes
 model_path = "./resnet50_dermnet.pth"
 
 if not os.path.exists(model_path):
@@ -46,12 +48,14 @@ model.load_state_dict(torch.load(model_path, map_location=device))
 model.to(device)
 model.eval()
 
+
 # Define transformation
 transform = transforms.Compose([
-    transforms.Resize((224, 224)),
+    transforms.Resize((224, 224)),  # Keep the same size
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Adjusted normalization
 ])
+
 
 class_names = ['Acne', 'Alopecia', 'Bullous Disease', 'Dermatitis', 'Drug Eruptions', 
                'Eczema', 'Impetigo', 'Lichen Planus', 'Lupus', 'Malignant Lesions', 
@@ -159,4 +163,4 @@ def doctors():
 
 # Run the Flask app
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=5000)
+    app.run(debug=False, host="localhost", port=5000)
