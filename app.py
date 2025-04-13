@@ -14,6 +14,8 @@ warnings.filterwarnings("ignore")
 app = Flask(__name__)
 
 # MongoDB setup
+print()
+print("Connecting to MongoDB...")
 MONGO_URI = "mongodb+srv://thakur:thakur@diseasedescandprev.hxwp7.mongodb.net/?retryWrites=true&w=majority&appName=DiseaseDescandPrev"
 if not MONGO_URI:
     raise ValueError("MONGO_URI is not set in environment variables!")
@@ -26,12 +28,13 @@ try:
 except Exception as e:
     print(f"Error connecting to MongoDB: {e}")
     exit(1)
-
+print("Connected to MongoDB successfully!")
 # Upload folder config
 UPLOAD_FOLDER = "static/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+print("Loading model...")
 # Load model
 device = torch.device("cpu")
 model = models.resnet50(pretrained=False)
@@ -87,6 +90,9 @@ def predict_image(image_path):
         return predicted_class, confidence_score, confidence_grade, disease_info
     except Exception as e:
         return "Error", 0.0, "Low", {"description": "Prediction failed.", "prevention": str(e)}
+
+
+print('Model loaded successfully!')
 
 @app.route("/", methods=["GET", "POST"])
 def upload_file():

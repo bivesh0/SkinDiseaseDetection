@@ -2,4 +2,5 @@ uploads/
 disease_info.py
 DB_Doctors.py
 Flask App.code-workspace
-
+Procfile
+style.css
